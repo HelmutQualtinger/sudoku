@@ -1,35 +1,30 @@
 import numpy as np
+import json
 
 class Sudoku:
     def __init__(self, start_board) -> None:
         self.board2d = np.array(start_board, dtype=int)
-        self.board4d = self.transpose2d_4d()
         self.frozen2d =np.where(self.board2d > 0, True, False)
-        self.frozen4d = np.where(self.board4d > 0, True, False)
         
-    def transpose2d_4d(self):
-        board4d = np.zeros((3, 3, 3, 3), dtype=int)
-        for super_row in range(3):
-            for super_col in range(3):
-                for row in range(3):
-                    for col in range(3):
-                        old_row = super_row * 3 + row
-                        old_col = super_col * 3 + col
-                        board4d[super_row, super_col, row,
-                                col] = self.board2d[old_row, old_col]
-        return board4d
-    
-    def transpose4d_2d(self):
-        board2d=np.zeros((9, 9), dtype=int)
-        for super_row in range(3):
-            for super_col in range(3):
-                for row in range(3):
-                    for col in range(3):
-                        new_row =  super_row * 3 + row
-                        new_col =  super_col * 3 + col
-                        board2d[new_row, new_col] = self.board4d[super_row, super_col, row, col]
-        return board2d
-    
+    def save_json(self, filename):
+        data = {
+                'board': self.board2d.tolist(),
+                'frozen': self.frozen2d.tolist()
+            }
+        try:
+            with open(filename, 'w') as file:
+                json.dump(data, file)
+        except:
+            pass
+    def load_json(self, filename):
+        try:
+            with open(filename, 'r') as file:
+                data = json.load(file)
+            self.board2d = np.array(data['board'])
+            self.frozen2d = np.array(data['frozen'])
+        except:
+            pass            
+        
     def is_valid(self, candidate,row, col):
         super_row = row // 3
         super_col = col // 3
@@ -44,7 +39,7 @@ class Sudoku:
         return not np.any(self.board2d[:, col] == candidate)
     
     def is_valid_super_row_col(self, candidate, super_row, super_col):
-        return not np.any(self.board4d[super_row, super_col, :, :] == candidate)
+        return not np.any(self.board2d[super_row*3:(super_row+1)*3, 3*super_col:3*(super_col+1)] == candidate)
 
     def __str__(self) -> str:
     
@@ -91,25 +86,16 @@ startboard = [
 
 sudoku = Sudoku(startboard)
         
-        
-print(sudoku.board2d)
-
-print(sudoku.board4d)
-
-print(sudoku.frozen2d)
-print(sudoku.frozen4d)
-
-print (sudoku)
-
-
+sudoku.load_json('sudoku.json')
 while (True):
+    print(sudoku)
     row = int(input("Enter row: "))-1
     col = input("Enter col: ")
     col = ord(col) - ord('A')
     candidate = int(input("Enter candidate: "))
     if sudoku.is_valid(candidate, row, col):
         sudoku.board2d[row, col] = candidate
-        sudoku.board4d = sudoku.transpose2d_4d()
+        sudoku.save_json('sudoku.json')
         print(sudoku)
     else:
         print("Invalid move")
