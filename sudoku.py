@@ -26,6 +26,10 @@ class Sudoku:
             pass            
         
     def is_valid(self, candidate,row, col):
+        if self.frozen2d[row, col]:
+            return False
+        if candidate == 0:
+            return True
         super_row = row // 3
         super_col = col // 3
         return (self.is_valid_row(candidate, row) and
