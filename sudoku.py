@@ -3,10 +3,10 @@
  Game status is saved to the file sudoku.json, persistently
 """
 
-import json
-import numpy as np
+import json         # for JSON persistent game storage format
+import numpy as np  # for 2D array for avoiding slow python loops, use numpz vectorized operations instead
 
-
+EMPTY_BOARD = [[0]*9]*9  # empty board  load from JSON later
 class Sudoku:
     """
     A class representing a Sudoku board.
@@ -27,7 +27,7 @@ class Sudoku:
         __str__(self): Returns a string representation of the Sudoku board.
     """
 
-    def __init__(self, start_board) -> None:
+    def __init__(self, start_board=EMPTY_BOARD) -> None:
         """
         Initializes a Sudoku object.
 
@@ -41,9 +41,10 @@ class Sudoku:
         self.board2d = np.array(start_board, dtype=int)
         self.frozen2d = np.where(self.board2d > 0, True, False)
 
-    def save_json(self, filename):
+    def save_json(self, filename:str):
         """
-        Save the Sudoku board as a JSON file.
+        Save the Sudoku board as a JSON file. Only cells explicitely declared as frozen are frozen. 
+        All other cells are and remain mutable.
 
         Args:
             filename (str): The name of the file to save the JSON data to.
@@ -61,9 +62,11 @@ class Sudoku:
         except:
             print("failed to save to {filename}")
 
-    def load_json(self, filename):
+    def load_json(self, filename:str):
         """
         Loads a Sudoku board from a JSON file.
+        Only cells explicitely declared as frozen are frozen. All other cells are mutable.
+        Allows to save a game in progress.
 
         Args:
             filename (str): The path to the JSON file.
@@ -71,7 +74,7 @@ class Sudoku:
         Raises:
             FileNotFoundError: If the specified file does not exist.
             JSONDecodeError: If the JSON file is not valid.
-
+            
         """
         try:
             with open(filename, 'r', encoding='utf-8') as file:
@@ -83,9 +86,9 @@ class Sudoku:
         except json.JSONDecodeError:
             print(f"Failed to load from {filename}: Invalid JSON format.")
 
-    def set_field(self, row, col, candidate):
+    def set_field(self, row:int, col:int, candidate:int) -> None:
         """
-        Sets the value of a given cell in the Sudoku board.
+        Sets the value of a given cell in the Sudoku board. Does not freeze the cell.
 
         Parameters:
         row (int): The row index of the cell.
@@ -100,7 +103,7 @@ class Sudoku:
         else:
             print("Invalid move")
 
-    def is_valid(self, candidate, row, col):
+    def is_valid(self, candidate:int, row:int, col:int) -> bool:
         """
         Check if a candidate number is valid for a given position in the Sudoku grid.
 
@@ -112,9 +115,9 @@ class Sudoku:
         Returns:
         bool: True if the candidate number is valid, False otherwise.
         """
-        if self.frozen2d[row, col]:
+        if self.frozen2d[row, col]:  # cannot change frozen cells
             return False
-        if candidate == 0:
+        if candidate == 0:           # can always clear a cell unless it was frozen
             return True
         super_row = row // 3
         super_col = col // 3
@@ -137,34 +140,37 @@ class Sudoku:
         Returns a string representation of the Sudoku board.
 
         Returns:
-            str: The string representation of the Sudoku board.
+            str: The string representation of the Sudoku board. Used for printing the board.
         """
+        
+        # Header lines with column letters
         s = ' ' * 6
         for col in [chr(ord('A') + c_index) for c_index in range(9)]:
             s += f"{col:3}"
-            if col in ['C', 'F']:
+            if col in ['C', 'F']: # slightly seperate the 3x3 blocks
                 s += ' '
+                
         s += '\n'
-        s += '=' * 44 + '\n'
+        s += '=' * 44 + '\n'    # Ruler
 
-        for row in range(9):
+        for row in range(9):        # Rows with row numbers for allowing specifying moves
             s += f"{row+1:1}   |"
             for col in range(9):
-                if self.frozen2d[row, col]:
+                if self.frozen2d[row, col]:   # indicate frozen cells with asterisk
                     s += "*"
                 else:
                     s += " "
                 s += str(self.board2d[row, col]) + ' '
-                if col % 3 == 2:
+                if col % 3 == 2:     # slightly separate the 3x3 blocks vertically
                     s += '|'
-            if row % 3 == 2:
+            if row % 3 == 2:         # slightly separate the 3x3 blocks horizontally
                 s += '\n+' + '-' * 40 + '\n'
             else:
                 s += '\n+' + ' ' * 40 + '\n'
         return s
 
 
-startboard = [[0]*9]*9  # empty board
+startboard = [[0]*9]*9  # empty board  load from JSON later
 
 
 def validate_input(row, col, candidate):
@@ -226,6 +232,7 @@ def game():
             
 
 if __name__ == "__main__":
+    # play in pedestrian mode for debugging
     game()
 
 
