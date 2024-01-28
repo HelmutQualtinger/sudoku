@@ -4,7 +4,8 @@
 """
 
 import json         # for JSON persistent game storage format
-import numpy as np  # for 2D array for avoiding slow python loops, use numpz vectorized operations instead
+import numpy as np  # for 2D array for avoiding slow python loops
+                    # use numpy vectorized operations instead
 
 EMPTY_BOARD = [[0]*9]*9  # empty board  load from JSON later
 class Sudoku:
@@ -19,11 +20,10 @@ class Sudoku:
         __init__(self, start_board): Initializes a Sudoku object.
         save_json(self, filename): Save the Sudoku board as a JSON file.
         load_json(self, filename): Loads a Sudoku board from a JSON file.
-        is_valid(self, candidate, row, col): Check if a candidate number is valid for a given position in the Sudoku grid.
-        is_valid_row(self, candidate, row): Check if a candidate number is valid for a given row.
-        is_valid_col(self, candidate, col): Check if a candidate number is valid for a given column.
-        is_valid_super_row_col(self, candidate, super_row, super_col): 
-            Check if a candidate number is valid for a given super row and super column.
+        is_valid(self, candidate, row, col): Check if a candidate number is valid for a 
+        given position in the Sudoku grid.
+
+    and super column.
         __str__(self): Returns a string representation of the Sudoku board.
     """
 
@@ -43,7 +43,7 @@ class Sudoku:
 
     def save_json(self, filename:str):
         """
-        Save the Sudoku board as a JSON file. Only cells explicitely declared as frozen are frozen. 
+        Save the Sudoku board as a JSON file. Only cells explicitly declared as frozen are frozen. 
         All other cells are and remain mutable.
 
         Args:
@@ -59,13 +59,13 @@ class Sudoku:
         try:
             with open(filename, 'w', encoding='utf-8') as file:
                 json.dump(data, file)
-        except:
-            print("failed to save to {filename}")
+        except Exception:
+            print(f"Failed to save to {filename}")
 
     def load_json(self, filename:str):
         """
         Loads a Sudoku board from a JSON file.
-        Only cells explicitely declared as frozen are frozen. All other cells are mutable.
+        Only cells explicitly declared as frozen are frozen. All other cells are mutable.
         Allows to save a game in progress.
 
         Args:
@@ -125,7 +125,6 @@ class Sudoku:
                 not np.any(self.board2d[:, col] == candidate) and
                 not np.any(self.board2d[super_row*3:(super_row+1)*3,
                                         3*super_col:3*(super_col+1)] == candidate))
-        
     def count_empty_fields(self):
         """
         Counts the number of empty fields in the Sudoku board.
@@ -142,14 +141,12 @@ class Sudoku:
         Returns:
             str: The string representation of the Sudoku board. Used for printing the board.
         """
-        
         # Header lines with column letters
         s = ' ' * 6
         for col in [chr(ord('A') + c_index) for c_index in range(9)]:
             s += f"{col:3}"
-            if col in ['C', 'F']: # slightly seperate the 3x3 blocks
+            if col in ['C', 'F']: # slightly separate the 3x3 blocks
                 s += ' '
-                
         s += '\n'
         s += '=' * 44 + '\n'    # Ruler
 
@@ -169,9 +166,7 @@ class Sudoku:
                 s += '\n+' + ' ' * 40 + '\n'
         return s
 
-
 startboard = [[0]*9]*9  # empty board  load from JSON later
-
 
 def validate_input(row, col, candidate):
     """
@@ -229,10 +224,8 @@ def game():
             sudoku.save_json('sudoku.json')
         else:
             print("Invalid move")
-            
 
 if __name__ == "__main__":
     # play in pedestrian mode for debugging
     game()
-
 
