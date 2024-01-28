@@ -125,6 +125,45 @@ class Sudoku:
                 not np.any(self.board2d[:, col] == candidate) and
                 not np.any(self.board2d[super_row*3:(super_row+1)*3,
                                         3*super_col:3*(super_col+1)] == candidate))
+        
+    def get_candidates(self, row:int, col:int) -> set:
+        if self.frozen2d[row, col]:  # no candidates for frozen cells
+            return set()
+        already_used = set(self.board2d[row, :]) | set(self.board2d[:, col]) | \
+            set(self.board2d[row//3*3:(row//3+1)*3, col//3*3:(col//3+1)*3].flatten())
+        return set(range(1, 10)) - already_used
+
+    def freeze(self, row:int, col:int) -> None:
+        """
+        Freezes a given cell in the Sudoku board.
+
+        Parameters:
+        row (int): The row index of the cell.
+        col (int): The column index of the cell.
+
+        Returns:
+        None
+        """
+        if not self.board2d(row, col):  # cannot freeze empty cells
+            return
+        self.frozen2d[row, col] = True
+
+
+    def unfreeze(self, row:int, col:int) -> None:
+        """
+        Unfreezes a given cell in the Sudoku board.
+
+        Parameters:
+        row (int): The row index of the cell.
+        col (int): The column index of the cell.
+
+        Returns:
+        None
+        """
+        if not self.board2d(row, col):  # cannot freeze empty cells
+            return
+        self.frozen2d[row, col] = False
+        
     def count_empty_fields(self):
         """
         Counts the number of empty fields in the Sudoku board.
@@ -166,66 +205,5 @@ class Sudoku:
                 s += '\n+' + ' ' * 40 + '\n'
         return s
 
-startboard = [[0]*9]*9  # empty board  load from JSON later
 
-def validate_input(row, col, candidate):
-    """
-    Validates the input for row, column, and candidate in a Sudoku game.
-
-    Args:
-        row (int): The row number.
-        col (str): The column letter.
-        candidate (int): The candidate number.
-
-    Returns:
-        bool: True if the input is valid, False otherwise.
-    """
-    # Validate row
-    if not isinstance(row, int) or row < 1 or row > 9:
-        return False
-
-    # Validate column
-    if not isinstance(col, str) or len(col) != 1 or not col.isalpha() or not col.isupper():
-        return False
-
-    # Validate candidate
-    if not isinstance(candidate, int) or candidate < 0 or candidate > 9:
-        return False
-
-    return True
-
-
-def game():
-    """
-    The main function to play the Sudoku game.
-
-    Returns:
-        None
-    """
-    sudoku = Sudoku(startboard)
-
-    sudoku.load_json('sudoku.json')  # load Sudoku from file
-
-    while True:
-        print("Fields left: ", sudoku.count_empty_fields())
-        print(sudoku)
-        row = input("Enter row: ")
-        row = int(row)
-        col = input("Enter col: ")
-        candidate = int(input("Enter candidate: "))
-        if not validate_input(row, col, candidate):
-            print("Invalid input")
-            continue
-        col = ord(col.upper()) - ord('A')
-        row=int(row)-1
-        candidate=int(candidate)
-        if sudoku.is_valid(candidate, row, col):
-            sudoku.set_field(row, col, candidate)
-            sudoku.save_json('sudoku.json')
-        else:
-            print("Invalid move")
-
-if __name__ == "__main__":
-    # play in pedestrian mode for debugging
-    game()
 
