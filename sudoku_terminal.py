@@ -31,6 +31,61 @@ def validate_input(row, col, candidate):
 
     return True
 
+def move(s):
+    """
+    Gets the move from the user.
+
+    Returns:
+        tuple: The move (row, col, candidate).
+    """
+
+    while True:
+        command = input(
+            """Next move:   
+<row>=[1-9] <column>=[A-J] <number>=[0-9] or  
+<row>=[1-9] <column>=[A-J] F(reeze() or 
+<row>=[1-9] <column>=[A-J] U(freeze(9) or
+Save <filename>' or Load <filename>' or 'q' to quit)""")
+        command = command.lower()
+        words = command.split()
+        if words[0].startswith('q'): # user wants to quit
+            return False
+        if words[0][0] == 's':        # user wants to save the game
+            if len(words) != 2:
+                print("Invalid input", command)
+                continue
+            filename = words[1]
+            s.save_json(filename)
+            continue
+        if words[0][0]== 'l':       # user wants to load a game
+            if len(words) != 2:
+                print("Invalid input",command)
+                continue
+            filename = words[1]
+            s.load_json(filename)
+            continue
+        row = int(words[0][0])-1         
+        col = ord(words[1][0].upper()) - ord('A')
+        if (not 0 <= col < 9) or (not 0 <= row < 9):
+            print("Invalid input",command)
+            continue
+        if words[2][0] == 'f': # user wants to freeze or unfreeze a field  
+            s.freeze(row , col)
+            return True
+        if words[2][0] == 'u':                          # user wants to unfreeze a field
+            s.unfreeze(row , col)
+            return True
+        number = int(words[2][0])
+        if not 0 <= number <= 9:
+            print("Invalid input",command)
+            continue        
+        else:
+            s.set_field(row , col, number) # user wants to set a field
+            return True9
+        if len(words) != 3:
+            print("Invalid input")
+            continue
+    return True
 
 def game_on_terminal():
     """
@@ -42,26 +97,13 @@ def game_on_terminal():
     sudoku = Sudoku(startboard)
 
     sudoku.load_json('sudoku.json')  # load Sudoku from file
-
-    while True:
+    goon=True
+    while goon:
         print("Fields left: ", sudoku.count_empty_fields())
         print(sudoku)
-        row = input("Enter row: ")
-        row = int(row)
-        col = input("Enter col: ")
-        candidate = int(input("Enter candidate: "))
-        if not validate_input(row, col, candidate):
-            print("Invalid input")
-            continue
-        col = ord(col.upper()) - ord('A')
-        row=int(row)-1
-        candidate=int(candidate)
-        if sudoku.is_valid(candidate, row, col):
-            sudoku.set_field(row, col, candidate)
-            sudoku.save_json('sudoku.json')
-        else:
-            print("Invalid move")
-
+        goon= move(sudoku)
+        
+    sudoku.save_json('sudoku.json')  # save Sudoku to file
 if __name__ == "__main__":
     # play in pedestrian mode for debugging
     game_on_terminal()

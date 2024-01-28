@@ -144,7 +144,7 @@ class Sudoku:
         Returns:
         None
         """
-        if not self.board2d(row, col):  # cannot freeze empty cells
+        if not self.board2d[row, col]:  # cannot freeze empty cells
             return
         self.frozen2d[row, col] = True
 
@@ -160,7 +160,7 @@ class Sudoku:
         Returns:
         None
         """
-        if not self.board2d(row, col):  # cannot freeze empty cells
+        if not self.board2d[row, col]:  # cannot freeze empty cells
             return
         self.frozen2d[row, col] = False
         
