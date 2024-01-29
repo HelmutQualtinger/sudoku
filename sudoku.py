@@ -131,7 +131,7 @@ class Sudoku:
             return set()
         already_used = set(self.board2d[row, :]) | set(self.board2d[:, col]) | \
             set(self.board2d[row//3*3:(row//3+1)*3, col//3*3:(col//3+1)*3].flatten())
-        return set(range(1, 10)) - already_used
+        return set(range(0,10)) - already_used
 
     def freeze(self, row:int, col:int) -> None:
         """
