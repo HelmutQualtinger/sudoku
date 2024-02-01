@@ -1,0 +1,5 @@
+import numpy
+with open("games/games.txt") as games_file:
+    lines=games_file.readlines()
+    
+print(lines)
