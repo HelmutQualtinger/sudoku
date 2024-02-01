@@ -1,8 +1,8 @@
 # Assisted Sudoku
 
+Implements the Sudoku game. The *soduko.py* module implements the basic function. *sudoku_tk* is a graphical user interface. 
 ![Sudoku](gui.png)
 
-Implements the Sudoku game. The *soduko.py* module implements the basic function. *sudoku_tk* is a graphical user interface. 
 *suduko_terminal* a command line interface. The tk version provides assistance by means of colors which will teach you to
 become a better player. It's sort of educational cheating.
 
