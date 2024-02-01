@@ -7,8 +7,12 @@ import simpleaudio as sa
 
 
 def play_wav(file_path):
-    wave_obj = sa.WaveObject.from_wave_file(file_path)
-    play_obj = wave_obj.play()
+    try:
+        wave_obj = sa.WaveObject.from_wave_file(file_path)
+        play_obj = wave_obj.play()
+    except:
+        print(f"File {file_path} not found, but YOU WON!")
+        return
 
 
 # Replace 'your_file.wav
@@ -75,7 +79,7 @@ class SudokuTk(tk.Tk):
                 for i in candidate_list:
                     if i == 0:
                         label = "Clear"
-                    else
+                    else:
                         label = str(i)
                     # schedule the Sudoku method for manipulation of the board
                     popup_menu.add_command(label=label,
@@ -84,7 +88,7 @@ class SudokuTk(tk.Tk):
 
                 # show the popup menu on screen
                 popup_menu.post(event.x_root, event.y_root)
-                if self.board.count_empty_fields() < 81:
+                if not self.board.count_empty_fields() :
                     play_wav('youwon.wav')
         #     print("posted", row, col)
         #     print("set_field", row, col)
@@ -119,6 +123,10 @@ class SudokuTk(tk.Tk):
         self.save_button = tk.Button(self.top_frame, text="Save",
                                      command=self.save_file)
         self.save_button.pack(side=tk.LEFT, padx=1, pady=1)
+        
+ 
+
+        
         self.numbers = []
  # create hover row with numbers to show where they are on the board
         for i in range(9):
@@ -130,10 +138,15 @@ class SudokuTk(tk.Tk):
             ll.bind("<Leave>", lambda event, i=i+1: self.set_active_number(0))
             self.numbers.append(ll)
 # how many fields still to go, 0 means solved
-        self.free_fields = tk.Label(self.top_frame, text="Free fields: 0",
+        self.free_fields = tk.Label(self.top_frame, text="To go 0",
 
                                     font=("Helvetica", 16, "bold"))
         self.free_fields.pack(side=tk.LEFT, padx=1, pady=1)
+        # Add check box
+        self.check_var = tk.IntVar()
+        self.check_button = tk.Checkbutton(
+            self.top_frame, text="Color", variable=self.check_var)
+        self.check_button.pack(side=tk.BOTTOM, padx=1, pady=1)
 # super frame for the 3x3 grid frames
         self.button_frame = tk.Frame(self, borderwidth=2, relief="solid")
         self.button_frame.grid(row=1, column=0, columnspan=9, padx=5, pady=5)
@@ -166,25 +179,31 @@ class SudokuTk(tk.Tk):
         self.Buttons = Button
 # create bottom frame with quit button
         self.q_button = tk.Button(self, text="Quit", command=self.quit)
-        self.q_button.grid(row=9, column=0, columnspan=9, sticky="nsew")
+        self.q_button.grid(row=10, column=0, columnspan=9, sticky="nsew")
         self.q_button.grid_rowconfigure(0, weight=1)
         self.q_button.grid_columnconfigure(0, weight=1)
+        
+        self.source_button = tk.Button(self, text="Source Code", command=self.source)
+        self.source_button.grid(row=9, column=0, columnspan=9, sticky="nsew")
+        self.source_button.grid_rowconfigure(0, weight=1)
+        self.source_button.grid_columnconfigure(0, weight=1)
 
         self.title("Assisted Sudoku")
 
     def update_widgets(self):
         # Set the colors of the widgets according to the state of the board and the active number
-        self.free_fields.config(text="Free fields: " +
+        self.free_fields.config(text="To go: " +
                                 str(self.board.count_empty_fields()),relief=tk.RAISED)
         for (row, col) in itertools.product(range(9), range(9)):  # over all rows and columns
             if self.board.frozen2d[row, col]:
-                self.Buttons[(row, col)].config(relief=tk.SUNKEN)
+                self.Buttons[(row, col)].config(
+                    relief=tk.SUNKEN, font=("Arial", 16, "bold"),fg="#ff0000")
             else:
                 self.Buttons[(row, col)].config(relief=tk.RAISED)
             digit_str = str(
                 self.board.board2d[row, col] if self.board.board2d[row, col] else "")
             # default black on white
-            self.Buttons[(row, col)].config(text=digit_str, bg="#ffffff", fg="#000000",
+            self.Buttons[(row, col)].config(text=digit_str, bg="#ffffff",
                                             )
             # empty fields are light green to start with
             if self.board.board2d[row, col] == 0:
@@ -204,7 +223,9 @@ class SudokuTk(tk.Tk):
             if not self.board.frozen2d[row, col] and self.board.board2d[row, col] == 0 and len(self.board.get_candidates(row, col)) < 2:
                 # fields with only one candidate are yellow,easy prez
                 self.Buttons[(row, col)].config(bg="#ffFFc0", fg="#000000")
- 
+            
+            if not self.check_var.get():
+                self.Buttons[(row, col)].config(bg="#ffffff",)
 
     def quit(self):
         """
@@ -217,6 +238,10 @@ class SudokuTk(tk.Tk):
         sudoku.save_json('sudoku.json')  # save the session persistently
         print("Quitting after saving session")
         sys.exit(0)
+        
+    def source(Self):
+        import webbrowser
+        webbrowser.get().open("https://github.com/HelmutQualtinger/sudoku")
 
     def load_file(self):
 

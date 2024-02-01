@@ -1,4 +1,4 @@
-# Project Name
+# Assisted Sudoku
 
 ![Sudoku](gui.png)
 
