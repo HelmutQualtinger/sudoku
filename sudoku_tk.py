@@ -1,4 +1,6 @@
 # pylint: disable=unused-argument
+import time 
+import datetime as dt
 import tkinter as tk
 from tkinter import Menu, filedialog
 import itertools
@@ -105,6 +107,17 @@ class SudokuTk(tk.Tk):
         # make the field in the mouse event the number active
         self.active_number = self.board.board2d[row, col]
         self.update_widgets()   # update the widget colors
+        
+    def update_time(self):
+        current_datetime=dt.datetime.now()
+        time_difference = current_datetime - self.start_time
+
+        # Extract hours, minutes, and seconds
+        hours, remainder = divmod(time_difference.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        self.time_label.config(text="Time: {hours:02d}:{minutes:02d}:{seconds:02d}".format(hours=hours, minutes=minutes, seconds=seconds))
+        self.after(1000, self.update_time)
 
     def create_widgets(self):
         """
@@ -123,10 +136,7 @@ class SudokuTk(tk.Tk):
         self.save_button = tk.Button(self.top_frame, text="Save",
                                      command=self.save_file)
         self.save_button.pack(side=tk.LEFT, padx=1, pady=1)
-        
- 
-
-        
+       
         self.numbers = []
  # create hover row with numbers to show where they are on the board
         for i in range(9):
@@ -147,9 +157,17 @@ class SudokuTk(tk.Tk):
         self.check_button = tk.Checkbutton(
             self.top_frame, text="Color", variable=self.check_var)
         self.check_button.pack(side=tk.BOTTOM, padx=1, pady=1)
+        
+        
+        self.top2_frame = tk.Frame(self, borderwidth=2)
+        self.top2_frame.grid(row=1,column=0,columnspan=9,padx=5,pady=5)
+        
+        self.time_label = tk.Label(self.top2_frame, text="Time: 00:00:00", font=("Helvetica", 16, "bold"))
+        self.time_label.pack(side=tk.TOP, padx=1, pady=1)      
+        
 # super frame for the 3x3 grid frames
         self.button_frame = tk.Frame(self, borderwidth=2, relief="solid")
-        self.button_frame.grid(row=1, column=0, columnspan=9, padx=5, pady=5)
+        self.button_frame.grid(row=2, column=0, columnspan=9, padx=5, pady=5)
         Button = {}
         for super_row in range(3):
             for super_col in range(3):
@@ -189,43 +207,51 @@ class SudokuTk(tk.Tk):
         self.source_button.grid_columnconfigure(0, weight=1)
 
         self.title("Assisted Sudoku")
+        self.start_time = dt.datetime.now()
+        self.update_time()
 
     def update_widgets(self):
+        print(self.active_number)
         # Set the colors of the widgets according to the state of the board and the active number
         self.free_fields.config(text="To go: " +
                                 str(self.board.count_empty_fields()),relief=tk.RAISED)
         for (row, col) in itertools.product(range(9), range(9)):  # over all rows and columns
-            if self.board.frozen2d[row, col]:
-                self.Buttons[(row, col)].config(
+            button= self.Buttons[(row, col)]
+            value=self.board.board2d[row, col]
+            frozen=self.board.frozen2d[row, col]
+            digit_str = str( value if value else "")
+            button.config(text=digit_str)
+            if frozen:
+                button.config(bg="#c0c0c0",
                     relief=tk.SUNKEN, font=("Arial", 16, "bold"),fg="#ff0000")
             else:
-                self.Buttons[(row, col)].config(relief=tk.RAISED)
-            digit_str = str(
-                self.board.board2d[row, col] if self.board.board2d[row, col] else "")
-            # default black on white
-            self.Buttons[(row, col)].config(text=digit_str, bg="#ffffff",
-                                            )
-            # empty fields are light green to start with
-            if self.board.board2d[row, col] == 0:
-                self.Buttons[(row, col)].config(
-                    text=digit_str)  # set the number
-                self.Buttons[(row, col)].config(
-                    bg="#80ff80", fg="#80ff80")
-            # frozen fields are gray
-            if not self.active_number == 0:  # non-candidates are light red
-                # candidates are light red
-                if (not self.active_number in (self.board.get_candidates(row, col)-{0})
-                    and not self.board.frozen2d[row, col]):
-                    self.Buttons[(row, col)].config(bg="#ff8080")
-                # active number is red
-                if self.board.board2d[row, col] == self.active_number:
-                    self.Buttons[(row, col)].config(bg="#c00000")
-            if not self.board.frozen2d[row, col] and self.board.board2d[row, col] == 0 and len(self.board.get_candidates(row, col)) < 2:
-                # fields with only one candidate are yellow,easy prez
-                self.Buttons[(row, col)].config(bg="#ffFFc0", fg="#000000")
+                button.config(relief=tk.RAISED)
+
+            if not self.check_var.get() or not self.active_number: # no coloring wanted or possible
+                button.config(bg="#ffffff")
+                continue
             
-            if not self.check_var.get():
-                self.Buttons[(row, col)].config(bg="#ffffff",)
+
+            if self.active_number:  # non-candidates are light red
+                # candidates are light green
+                if (not self.active_number in (self.board.get_candidates(row, col)-{0})):
+                    button.config(bg="#ff8080")
+                else:
+                    button.config(bg="#40c040")
+                # active number is red
+                if value == self.active_number:
+                    button.config(bg="#c00000")
+            if  not value and len(self.board.get_candidates(row, col)) == 1:
+                # fields with only one candidate are yellow,easy prez
+                button.config(bg="#ffFFc0", fg="#000000")
+            
+            if  not value and len(self.board.get_candidates(row, col)) == 0:
+                # empty fields with no candidate are yellow,easy prez
+                button.config(bg="#000000", fg="#800000")
+            
+            
+            
+ 
 
     def quit(self):
         """
@@ -250,6 +276,7 @@ class SudokuTk(tk.Tk):
         if filename:
             print("Loading file", filename)
             self.board.load_json(filename)
+            self.start_time = dt.datetime.now()
             self.update_widgets()
 
     def save_file(self):
