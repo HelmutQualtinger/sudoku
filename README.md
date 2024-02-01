@@ -1,5 +1,7 @@
 # Project Name
 
+![Sudoku](gui.png)
+
 Implements the Sudoku game. The *soduko.py* module implements the basic function. *sudoku_tk* is a graphical user interface. 
 *suduko_terminal* a command line interface. The tk version provides assistance by means of colors which will teach you to
 become a better player. It's sort of educational cheating.
@@ -7,8 +9,7 @@ become a better player. It's sort of educational cheating.
 The GUI version allows you to play by moving the mouse to the desired field and clicking the (lef) button will bring
 up a pop-up menu allow you to set the field to a specific value. Only legal moves are presented.
 
-Right clicking you can freeze or unfreeze fields, allowing you to create new sudokus 
-and saving and possibly sharing them.
+Right clicking you can freeze or unfreeze fields, allowing you to create new sudokus  and saving and possibly sharing them.
 
 Sudokus can be read from and written to files. The files are in json format with one list of lists 
 providing the currently set numbers and another list of list providing the frozen fields. Internally
