@@ -46,6 +46,7 @@ class SudokuTk(Tk):
         super().__init__()  # do whatever Tkinter does
         self.board = board  # link to the Sudoku board
         self.active_number = 0  # no active number yet
+        self.start_time = dt.datetime.now()
         self.create_widgets()  # create the widgets
         self.update_widgets()  # update the widgets for the first time
         # to make sure session saved whatever way we exit
@@ -91,9 +92,7 @@ class SudokuTk(Tk):
                     popup_menu.add_command(
                         label=label,
                         command=lambda row=row, col=col, i=i: self.board.set_field(
-                            row, col, i
-                        ),
-                    )
+                            row, col, i))
 
                 # show the popup menu on screen
                 popup_menu.post(event.x_root, event.y_root)
@@ -178,16 +177,16 @@ class SudokuTk(Tk):
         # Add check box
         self.check_var = tk.IntVar()
         self.check_button = tk.Checkbutton(
-            self.top_frame, text="Color", variable=self.check_var
-        )
+            self.top_frame, text="Color", variable=self.check_var)
         self.check_button.pack(side=tk.BOTTOM, padx=1, pady=1)
         self.top2_frame = tk.Frame(self, borderwidth=2)
         self.top2_frame.grid(row=1, column=0, columnspan=9, padx=5, pady=5)
 
-        self.time_label = tk.Label(
-            self.top2_frame, text="Time: 00:00:00", font=("Helvetica", 16, "bold")
-        )
+        self.time_label = tk.Label(self.top2_frame, text="Time: 00:00:00",
+                                   font=("Helvetica", 16, "bold"))
         self.time_label.pack(side=tk.TOP, padx=1, pady=1)
+        self.solve_button = tk.Button(self.top2_frame, text="Solve", command=self.solve)
+        self.solve_button.pack(side=tk.BOTTOM, padx=1, pady=1)
 
         # super frame for the 3x3 grid frames
         self.button_frame = tk.Frame(self, borderwidth=2, relief="solid")
@@ -200,7 +199,8 @@ class SudokuTk(Tk):
                 frame.grid(row=super_row, column=super_col, padx=5, pady=5)
                 for i in range(3):
                     for j in range(3):
-                        # in each frame created 3x3 buttons, really labels because buttons cannot be styled on the Mac
+                        # in each frame created 3x3 buttons, 
+                        # really labels because buttons cannot be styled on the Mac
                         row2d = super_row * 3 + i
                         col2d = super_col * 3 + j
                         button = tk.Label(
@@ -209,7 +209,8 @@ class SudokuTk(Tk):
                         for bt, action in zip(range(1, 3), ["Press", "Release"]):
                             button.bind(
                                 f"<Button{action}-{bt}>",
-                                lambda event, row=row2d, col=col2d, bt=bt, action=action: self.set_field(
+                                lambda event, row=row2d, col=col2d, bt=bt, 
+                                    action=action: self.set_field(
                                     event, row, col, bt, action
                                 ),
                             )
@@ -222,18 +223,19 @@ class SudokuTk(Tk):
                         button.grid(row=i, column=j)
                         # remember widget for later reference
                         Button[(row2d, col2d)] = button
-        # add the buttons to the object they are really labels because buttons cannot be styled on the Mac
+        # add the buttons to the object they are really labels 
+        # because buttons cannot be styled on the Mac
         self.Buttons = Button
         # create bottom frame with quit button
         self.q_button = tk.Button(self, text="Quit", command=self.quit)
         self.q_button.grid(row=10, column=0, columnspan=9, sticky="nsew")
-        self.q_button.grid_rowconfigure(0, weight=1)
-        self.q_button.grid_columnconfigure(0, weight=1)
+        # self.q_button.grid_rowconfigure(0, weight=1)
+        # self.q_button.grid_columnconfigure(0, weight=1)
 
         self.source_button = tk.Button(self, text="Source Code", command=self.source)
         self.source_button.grid(row=9, column=0, columnspan=9, sticky="nsew")
-        self.source_button.grid_rowconfigure(0, weight=1)
-        self.source_button.grid_columnconfigure(0, weight=1)
+        # self.source_button.grid_rowconfigure(0, weight=1)
+        # self.source_button.grid_columnconfigure(0, weight=1)
 
         self.title("Assisted Sudoku")
         self.start_time = dt.datetime.now()
@@ -290,6 +292,9 @@ class SudokuTk(Tk):
                 # empty fields with no candidate are yellow,easy prez
                 button.config(bg="#000000", fg="#800000")
 
+    def solve(self):
+        self.board.solve()
+        self.update_widgets()
     def quit(self):
         """
         Exits the Sudoku game.
@@ -306,7 +311,7 @@ class SudokuTk(Tk):
         webbrowser.get().open("https://github.com/HelmutQualtinger/sudoku")
 
     def load_file(self):
-        # Get the curreßnt working directory
+        # Get the current working directory
         current_directory = pathlib.Path.cwd()
         # Create a path to the "games" subdirectory
         games_directory = current_directory / "games"

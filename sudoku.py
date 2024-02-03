@@ -172,6 +172,20 @@ class Sudoku:
             int: The count of empty fields.
         """
         return 81 - np.count_nonzero(self.board2d)
+    
+    
+    def solve(self)-> bool:
+        if self.count_empty_fields() == 0:
+            return True
+        for (row, col), value in np.ndenumerate(self.board2d):
+            if value == 0:
+                for candidate in self.get_candidates(row, col):
+                    self.board2d[row, col] = candidate
+                    if self.solve():
+                        return True
+                    self.board2d[row, col] = 0
+                return False
+        return True
 
     def __str__(self) -> str:
         """
