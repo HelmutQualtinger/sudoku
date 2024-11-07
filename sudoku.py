@@ -125,7 +125,7 @@ class Sudoku:
                 not np.any(self.board2d[:, col] == candidate) and
                 not np.any(self.board2d[super_row*3:(super_row+1)*3,
                                         3*super_col:3*(super_col+1)] == candidate))
-        
+
     def get_candidates(self, row:int, col:int) -> set:
         if self.frozen2d[row, col]:  # no candidates for frozen cells
             return set()
@@ -163,7 +163,7 @@ class Sudoku:
         if not self.board2d[row, col]:  # cannot freeze empty cells
             return
         self.frozen2d[row, col] = False
-        
+
     def count_empty_fields(self):
         """
         Counts the number of empty fields in the Sudoku board.
@@ -172,8 +172,7 @@ class Sudoku:
             int: The count of empty fields.
         """
         return 81 - np.count_nonzero(self.board2d)
-    
-    
+
     def solve(self)-> bool:
         if self.count_empty_fields() == 0:
             return True
@@ -216,8 +215,5 @@ class Sudoku:
             if row % 3 == 2:         # slightly separate the 3x3 blocks horizontally
                 s += '\n+' + '-' * 40 + '\n'
             else:
-                s += '\n+' + ' ' * 40 + '\n'
+                s += '\n+\n'
         return s
-
-
-

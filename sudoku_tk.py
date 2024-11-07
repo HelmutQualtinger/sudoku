@@ -50,7 +50,7 @@ class SudokuTk(Tk):
         self.create_widgets()  # create the widgets
         self.update_widgets()  # update the widgets for the first time
         # to make sure session saved whatever way we exit
-        self.bind("<Destroy>", lambda e: self.quit)
+        self.bind("<Destroy>", lambda e: self.quit())
         # to make sure session saved whatever way we exit
         self.protocol("WM_DELETE_WINDOW", self.quit)
 
@@ -185,7 +185,7 @@ class SudokuTk(Tk):
         self.time_label = tk.Label(self.top2_frame, text="Time: 00:00:00",
                                    font=("Helvetica", 16, "bold"))
         self.time_label.pack(side=tk.TOP, padx=1, pady=1)
-        self.solve_button = tk.Button(self.top2_frame, text="Solve", command=self.solve)
+        self.solve_button = tk.Button(self.top2_frame, text="Solve", command=lambda :(self.solve() , play_wav("youwon.wav")))
         self.solve_button.pack(side=tk.BOTTOM, padx=1, pady=1)
 
         # super frame for the 3x3 grid frames
@@ -295,6 +295,7 @@ class SudokuTk(Tk):
     def solve(self):
         self.board.solve()
         self.update_widgets()
+        
     def quit(self):
         """
         Exits the Sudoku game.

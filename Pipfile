@@ -6,8 +6,12 @@ name = "pypi"
 [packages]
 numpy = "*"
 simpleaudio = "*"
+numba = "*"
+matplotlib = "*"
+imageio = "*"
 
 [dev-packages]
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"
